@@ -16,12 +16,22 @@ export default (ins: Feed) => {
         title: { _text: options.title },
         link: { _text: options.link },
         description: { _text: options.description },
-        lastBuildDate: { _text: options.updated ? options.updated.toUTCString() : new Date().toUTCString() },
-        docs: { _text: options.docs ? options.docs : "https://validator.w3.org/feed/docs/rss2.html" },
-        generator: { _text: options.generator || generator }
       }
     }
   };
+
+  if (options.updated) {
+    base.rss.channel.lastBuildDate = { _text: options.updated.toUTCString() };
+  }
+
+  if (options.docs) {
+    base.rss.channel.docs = { _text: options.docs };
+  }
+
+  if (options.generator) {
+    base.rss.channel.generator = { _text: options.generator };
+  }
+
 
   /**
    * Channel language
@@ -107,7 +117,7 @@ export default (ins: Feed) => {
     let item: any = {};
 
     if (entry.title) {
-      item.title = { _cdata: entry.title };
+      item.title = { _text: entry.title };
     }
 
     if (entry.link) {
@@ -127,7 +137,7 @@ export default (ins: Feed) => {
     }
 
     if (entry.description) {
-      item.description = { _cdata: entry.description };
+      item.description = { _text: entry.description };
     }
 
     if (entry.content) {
@@ -143,6 +153,8 @@ export default (ins: Feed) => {
       entry.author.map((author: Author) => {
         if (author.email && author.name) {
           item.author.push({ _text: author.email + " (" + author.name + ")" });
+        } else if (author.name) {
+          item.author.push({ _text: author.name });
         }
       });
     }
